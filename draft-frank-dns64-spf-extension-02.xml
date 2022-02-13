@@ -52,6 +52,43 @@ longer within the SPF records allow-/denylist as it got rewritten by NAT64 <xref
 |           |         |         |               |
 +---------------------+         +---------------+ 
 </artwork></figure>
+<t>Figure 1 shows a minimal sample deployment. The DNS server utilizing DNS64 may be anywhere
+including at publicly provided as long as the NAT64 is using the Well-Known-Prefix.
+</t>
+<figure title="Figure 2: Sample Deployment for cloud provider"><artwork align="center">
++---------------------------------+
+|                                 |
+| +---+                   +-------+
+| |MTA| 192.0.2.1         |Border | +--------+
+| +---+                   |Gateway+-+IPv4aaS |
+|Sender/Recipient         |IPv4   | |(NAT64) |
++-------------------------+-------+ +--+-----+
+                                       |
++-------------------------+-------+    |
+|                         |Border | +--+-----+
+|                         |Gateway| |IPv6    |
+| +-------------+     +---+IPv6   +-+Internet|
+| | 2001:db8::1 |     |   +-------+ +-+------+
+| | +---+    +--++----+-+         |   |
+| | |MTA+----+GW||SD WAN|         |   |
+| | +---+    +--++----+-+         |   |
+| |Customer A   |     |   +-----+ | +-+----+
+| |(IPv6 only)  |     +---+DNS64| | |Public|
+| +-------------+         +-----+ | |DNS64 |
+|Cloud Provider Space             | +------+
++---------------------------------+
+</artwork></figure>
+<t>As Figure 1 may be a bit too abstract for some to imagine how a real-world
+deployment may look like Figure 2 shows a cloud provider with a single stack
+IPv6 network utilizing an IPv4aaS (IPv4 as a service) from another provider.
+IPv4 as a Service in this example refers to a NAT64 that is managed by
+someone else and reachable via e.g. private peering. It may be provided by the
+data center or the cloud provider itself.
+The IPv4aaS may offer additional services that a customer can book, like reverse
+mapping e.g. a dedicated IPv4 for outbound traffic.
+Also, for this deployment, the placement of the Name Server offering the DNS64 is
+irrelevant as long as the Well-Known-Prefix is used.
+</t>
 <section anchor="terminology"><name>Terminology</name>
 <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",  "MAY", and "OPTIONAL"
