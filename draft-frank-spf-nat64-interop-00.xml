@@ -5,7 +5,7 @@
 <title abbrev="spf-nat64-interop">Interoperability between SPF (RFC7208) and NAT64 (RFC6146)</title>
 <seriesInfo value="draft-frank-spf-nat64-interop-00" stream="IETF" status="informational" name="Internet-Draft"></seriesInfo>
 <author initials="K." surname="Frank" fullname="Klaus Frank"><organization></organization><address><postal><street></street>
-</postal><email>klaus.frank@posteo.de</email>
+</postal><email>draft-frank-spf-nat64-interop@frank.fyi</email>
 </address></author>
 <date/>
 <area>Application</area>
