@@ -1,44 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rfc version="3" ipr="trust200902" updates="RFC6147,RFC7208" submissionType="IETF" consensus="true" category="std" docName="draft-frank-dns64-spf-extension-02" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude">
+<rfc version="3"
+  ipr="trust200902"
+  updates="RFC6147,RFC7208"
+  submissionType="IETF"
+  consensus="true"
+  category="std"
+  docName="draft-frank-dns64-spf-extension-02"
+  xml:lang="en"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
 
-<front>
-<title abbrev="dns64-spf-extension">An Extension to DNS64 for Sender Policy Framework SPF Awareness</title>
-<seriesInfo value="draft-frank-dns64-spf-extension-02" stream="IETF" status="informational" name="Internet-Draft"></seriesInfo>
-<author initials="K." surname="Frank" fullname="Klaus Frank"><organization></organization><address><postal><street></street>
-</postal><email>draft-frank-dns64-spf-extension@frank.fyi</email>
-</address></author>
-<date/>
-<area>Application</area>
-<workgroup></workgroup>
-<keyword>email</keyword>
+  <front>
+    <title abbrev="dns64-spf-extension">An Extension to DNS64 for Sender Policy Framework SPF Awareness</title>
+    <seriesInfo value="draft-frank-dns64-spf-extension-02"
+      stream="IETF"
+      status="informational"
+      name="Internet-Draft"></seriesInfo>
+    <author initials="K."
+      surname="Frank"
+      fullname="Klaus Frank">
+      <organization></organization>
+      <address>
+        <postal>
+          <street></street>
+        </postal>
+        <email>draft-frank-dns64-spf-extension@frank.fyi</email>
+      </address>
+    </author>
+    <date />
+    <area>Application</area>
+    <workgroup></workgroup>
+    <keyword>email</keyword>
 
-<abstract>
-<t>This document describes interoperability issues and resolutions between DNS64 and SPF records for mail transfer agents.
+    <abstract>
+      <t>This document describes interoperability issues and resolutions between DNS64 and SPF records for mail transfer agents.
 This document also aims to simplify the IPv6 migration for mail transfer agent operators.</t>
-<t>This document updates <xref target="RFC6147"></xref> and <xref target="RFC7208"></xref>.</t>
-</abstract>
+      <t>This document updates <xref target="RFC6147"></xref> and <xref target="RFC7208"></xref>.
+      </t>
+    </abstract>
 
-</front>
+  </front>
 
-<middle>
+  <middle>
 
-<section anchor="introduction"><name>Introduction</name>
-<t>Network Address and Protocol Translation from IPv6 clients to IPv4 servers (NAT64) function
-<xref target="RFC6146"></xref> is widely deployed, especially in cellular networks. But also in datacenters that aim
+    <section anchor="introduction">
+      <name>Introduction</name>
+      <t>Network Address and Protocol Translation from IPv6 clients to IPv4 servers (NAT64) function
+        <xref target="RFC6146"></xref> is widely deployed, especially in cellular networks. But also in datacenters that aim
 to simplify the problems of dualstack operations utilize it. There it's used to allow IPv6-only servers to access the
 IPv4 internet and be reachable by the IPv4 network without having an IPv4 stack on the own servers. Such a function is
 solicited when an IPv6-only host communicates with an IPv4-only server. In such context, IPv4-only servers are represented
 in the IPv6 domain by synthesizing IPv6 addresses based on IPv4 addresses. The address translation algorithm defined
 in <xref target="RFC6052"></xref> uses a dedicated IPv6 prefix that usually is the Well-Known Prefix (i.e. 64:ff9b::/96)
 or a Network Specific Prefix (NSP). For better application compatibility NSP is usually only used in transit only.</t>
-<t>DNS64 <xref target="RFC6147"></xref> specifies a companion DNS mechanism to represent IPv4-only servers in the
+      <t>DNS64 <xref target="RFC6147"></xref> specifies a companion DNS mechanism to represent IPv4-only servers in the
 IPv6 domain.</t>
-<t>The DNS64 specification <xref target="RFC6147"></xref> causes issues for mail transfer agent operators as it does not 
+      <t>The DNS64 specification <xref target="RFC6147"></xref> causes issues for mail transfer agent operators as it does not
 discuss the implications on SPF records <xref target="RFC7208"></xref>. Therefore, and assuming a NAT64 is present on the
 path, when an SPF validator tries to validate, the validation will fail because the originating IP address it sees is no
 longer within the SPF records allow-/denylist as it got rewritten by NAT64 <xref target="RFC6146"></xref>.
-</t>
-<figure title="Figure 1: Sample Deployment (RFC6146) with MTAs"><artwork align="center">
+      </t>
+      <figure title="Figure 1: Sample Deployment (RFC6146) with MTAs">
+        <artwork align="center">
 +---------------------+         +---------------+
 |IPv6 network         |         |    IPv4       |
 |           |  +-------------+  |  network      |
@@ -50,12 +72,14 @@ longer within the SPF records allow-/denylist as it got rewritten by NAT64 <xref
 |2001:db8::1|------| NAT64 |----|               |
 |           |      +-------+    |               |
 |           |         |         |               |
-+---------------------+         +---------------+ 
-</artwork></figure>
-<t>Figure 1 shows a minimal sample deployment. The DNS server utilizing DNS64 may be anywhere
++---------------------+         +---------------+
+        </artwork>
+      </figure>
+      <t>Figure 1 shows a minimal sample deployment. The DNS server utilizing DNS64 may be anywhere
 including at publicly provided as long as the NAT64 is using the Well-Known-Prefix.
-</t>
-<figure title="Figure 2: Sample Deployment for cloud provider"><artwork align="center">
+      </t>
+      <figure title="Figure 2: Sample Deployment for cloud provider">
+        <artwork align="center">
 +---------------------------------+
 |                                 |
 | +---+                   +-------+
@@ -77,8 +101,9 @@ including at publicly provided as long as the NAT64 is using the Well-Known-Pref
 | +-------------+         +-----+ | |DNS64 |
 |Cloud Provider Space             | +------+
 +---------------------------------+
-</artwork></figure>
-<t>As Figure 1 may be a bit too abstract for some to imagine how a real-world
+        </artwork>
+      </figure>
+      <t>As Figure 1 may be a bit too abstract for some to imagine how a real-world
 deployment may look like Figure 2 shows a cloud provider with a single stack
 IPv6 network utilizing an IPv4aaS (IPv4 as a service) from another provider.
 IPv4 as a Service in this example refers to a NAT64 that is managed by
@@ -88,23 +113,26 @@ The IPv4aaS may offer additional services that a customer can book, like reverse
 mapping e.g. a dedicated IPv4 for outbound traffic.
 Also, for this deployment, the placement of the Name Server offering the DNS64 is
 irrelevant as long as the Well-Known-Prefix is used.
-</t>
-<section anchor="terminology"><name>Terminology</name>
-<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      </t>
+      <section anchor="terminology">
+        <name>Terminology</name>
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",  "MAY", and "OPTIONAL"
 in this document are to be interpreted as described in BCP 14 [RFC2119],[RFC8174]
 when, and only when, they appear in all capitals, as shown here.</t>
-<t>The reader should be familiar with the terms defined in <xref target="RFC6147"></xref> and
-<xref target="RFC7208"></xref></t>
-</section>
-</section>
+        <t>The reader should be familiar with the terms defined in <xref target="RFC6147"></xref> and
+          <xref target="RFC7208"></xref>
+        </t>
+      </section>
+    </section>
 
-<section anchor="spf-rr-rewrite"><name>Updates to RFC6147: Rewriting SPF Records</name>
-<t>Section 5.1 of <xref target="RFC6147"></xref> is updated with this new subsection.</t>
-<t>NEW:</t>
-<blockquote>
-<t>5.1.9. Handling SPF Records</t>
-<t>
+    <section anchor="spf-rr-rewrite">
+      <name>Updates to RFC6147: Rewriting SPF Records</name>
+      <t>Section 5.1 of <xref target="RFC6147"></xref> is updated with this new subsection.</t>
+      <t>NEW:</t>
+      <blockquote>
+        <t>5.1.9. Handling SPF Records</t>
+        <t>
    If the DNS64 server receives a SPF-record (within the TXT-RR <xref target="RFC7208"></xref>)
    containing the "ip4" mechanism (Section 5.6 of <xref target="RFC7208"></xref>), it MUST rewrite the
    IPv4 address according to the same rules as an A-RR and synthesize a new SPF record within the response
@@ -114,58 +142,76 @@ when, and only when, they appear in all capitals, as shown here.</t>
    If any "a" or "mx" mechanism contains a dual-cidr-length without an ip6-cidr-length, it also gets generated.
    (e.g., "v=spf1 a:a.example.com/24 mx:mx.example.com/24 ip4:192.0.0.1/32 -all" becomes
    "v=spf1 a:a.example.com/24/120 mx:mx.example.com/24/120 ip4:192.0.0.1/32 ip6:64:ff9b::c000:1/128 -all").
-   This example uses the Well-Known Prefix defined in <xref target="RFC6052"></xref>.</t>
-<t>
+   This example uses the Well-Known Prefix defined in <xref target="RFC6052"></xref>.
+        </t>
+        <t>
    NOTE: Everything else is done by the SPF validator (as already defined in the standard
-   <xref target="RFC7208"></xref>).</t>
-   <ul>
-   <li>When it checks a.example.com, it queries the A-RR and AAAA-RR and, thereby, gets a response containing
+          <xref target="RFC7208"></xref>).
+        </t>
+        <ul>
+          <li>When it checks a.example.com, it queries the A-RR and AAAA-RR and, thereby, gets a response containing
    the synthesized AAAA RR and validation will pass accordingly.</li>
-   <li>When it checks the NAT64 generated IPv6 it sees as source address against the SPF,
+          <li>When it checks the NAT64 generated IPv6 it sees as source address against the SPF,
    it'll find the "ip6" mechanism DNS64 inserted and also pass.</li>
-   <li>For any macro-string, the SPF validator will generate new DNS lookups, which will be rewritten according to
+          <li>For any macro-string, the SPF validator will generate new DNS lookups, which will be rewritten according to
    this document and therefore pass as the validation checks.</li>
-   </ul>
-</blockquote>
-</section>
+        </ul>
+      </blockquote>
+    </section>
 
-<section anchor="spf-mechanism-definitions"><name>Updates to RFC7208: SPF "exists" Mechanism</name>
-<t>Section 5.7 of <xref target="RFC7208"></xref> currently explicitly
+    <section anchor="spf-mechanism-definitions">
+      <name>Updates to RFC7208: SPF "exists" Mechanism</name>
+      <t>Section 5.7 of <xref target="RFC7208"></xref> currently explicitly
 ignores the presence of IPv6 and to future proof it for IPv6-only it gets updated as follows:</t>
-<t>OLD:</t><blockquote><t>
+      <t>OLD:</t>
+      <blockquote>
+        <t>
    This mechanism is used to construct an arbitrary domain name that is
    used for a DNS A record query.
-</t></blockquote>
-<t> NEW: </t><blockquote><t>
+        </t>
+      </blockquote>
+      <t> NEW: </t>
+      <blockquote>
+        <t>
    This mechanism is used to construct an arbitrary domain name that is
    used for a query to both DNS A RR and AAAA RR.
-</t></blockquote>
-<t>OLD:</t><blockquote><t>
+        </t>
+      </blockquote>
+      <t>OLD:</t>
+      <blockquote>
+        <t>
    The &lt;domain-spec&gt; is expanded as per Section 7.  The resulting domain
    name is used for a DNS A RR lookup (even when the connection type is
    IPv6).  If any A record is returned, this mechanism matches.
-</t></blockquote>
-<t>NEW:</t><blockquote><t>
+        </t>
+      </blockquote>
+      <t>NEW:</t>
+      <blockquote>
+        <t>
    The &lt;domain-spec&gt; is expanded as per Section 7.  The resulting domain
    name is used for DNS A RR and AAAA RR lookups.
    If any A or AAAA record is returned, this mechanism matches.
-</t></blockquote>
-</section>
+        </t>
+      </blockquote>
+    </section>
 
-</middle>
+  </middle>
 
-<back>
-<references><name>References</name>
-<references><name>Normative References</name>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6147.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7208.xml"/>
-</references>
-<references><name>Informative References</name>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6146.xml"/>
-<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6052.xml"/>
-</references>
-</references>
+  <back>
+    <references>
+      <name>References</name>
+      <references>
+        <name>Normative References</name>
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6147.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7208.xml" />
+      </references>
+      <references>
+        <name>Informative References</name>
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6146.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6052.xml" />
+      </references>
+    </references>
 
-</back>
+  </back>
 
 </rfc>
