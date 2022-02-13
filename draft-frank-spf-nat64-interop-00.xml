@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rfc version="3" ipr="trust200902" submissionType="IETF" category="std" docName="draft-frank-spf-nat64-interop-00" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude">
+
+<front>
+<title abbrev="spf-nat64-interop">Interoperability between SPF (RFC7208) and NAT64 (RFC6146)</title>
+<seriesInfo value="draft-frank-spf-nat64-interop-00" stream="IETF" status="informational" name="Internet-Draft"></seriesInfo>
+<author initials="K." surname="Frank" fullname="Klaus Frank"><organization></organization><address><postal><street></street>
+</postal><email>klaus.frank@posteo.de</email>
+</address></author>
+<date/>
+<area>Application</area>
+<workgroup></workgroup>
+<keyword>email</keyword>
+
+<abstract>
+<t>This document describes interoperability issues and resolutions between DNS64 and SPF records for mail transfer agents.
+This RFC also aims to simplify the IPv6 migration for mail transfer agent operators.</t>
+<t>This document updates <xref target="RFC7208"></xref>.</t>
+</abstract>
+
+</front>
+
+<middle>
+
+<section anchor="introduction"><name>Introduction</name>
+<t>The SPF record defined in <xref target="RFC7208"></xref> causes issues for parties trying to migrate from IPv4
+towards the newer IPv6 standard. This document aims to address the challenges one encounters when migrating
+Mail Transfer Agents (MTA) towards IPv6-only networks by using NAT64 <xref target="RFC6146"></xref> and DNS64
+<xref target="RFC6147"></xref> technologies.
+</t>
+</section>
+
+<section anchor="spf-mechanism-definitions"><name>SPF Mechanism Definitions</name>
+<t>The following paragraph from section 5 of <xref target="RFC7208"></xref> gets updated from:</t>
+<blockquote><t>
+   When any mechanism fetches host addresses to compare with &lt;ip&gt;, when
+   &lt;ip&gt; is an IPv4, "A" records are fetched; when &lt;ip&gt; is an IPv6
+   address, "AAAA" records are fetched.  SPF implementations on IPv6
+   servers need to handle both "AAAA" and "A" records, for clients on
+   IPv4-mapped IPv6 addresses <xref target="RFC4291"></xref>.  IPv4 &lt;ip&gt; addresses are only
+   listed in an SPF record using the "ip4" mechanism.
+</t></blockquote>
+to
+<blockquote><t>
+   When any mechanism fetches host addresses to compare with &lt;ip&gt;, when
+   &lt;ip&gt; is an IPv4, "A" records are fetched; when &lt;ip&gt; is an IPv6
+   address, "AAAA" records are fetched.  SPF implementations on IPv6
+   servers need to handle both "AAAA" and "A" records, for clients on
+   IPv4-mapped IPv6 addresses <xref target="RFC4291"></xref>, the Well-Known NAT64 prefix
+   <xref target="RFC6052"></xref>, any dynamically discovered NAT64 prefix (via "ipv4only.arpa"
+   <xref target="RFC8880"></xref> and Router Advertisements <xref target="RFC8781"></xref>).
+   IPv4 &lt;ip&gt; addresses are only listed in an SPF record using the "ip4" mechanism.
+</t></blockquote>
+
+<t>
+And section 5.6 gets amended with:</t>
+<blockquote><t>
+   When parsing "ip4" an SPF implementation MUST also parse NAT64 <xref target="RFC8880"></xref> and
+   IPv4-mapped IPv6 addresses <xref target="RFC4291"></xref>. An &lt;ip6&gt; specifying an IPv4-mapped IPv6 address
+   MUST be parsed and be considered equal to writing its IPv4 address within &lt;ip4&gt;.<br />
+   E.g. The following MUST be treated euqally and interchangeably:<br />
+      * "ip6:::ffff:c000:00ac"<br />
+      * "ip6:0::ffff:c000:ac/128"<br />
+      * "ip4:192.0.0.172/32"<br />
+      * "ip6:64:ff9b::c000:ac/128"<br />
+      * ...<br />
+   Similar for any other prefix learned by "ipv4only.arpa" <xref target="RFC8880"></xref> or
+   Router Discovery <xref target="RFC8781"></xref>
+</t></blockquote>
+<t>The section 5.7 gets updated from</t>
+<blockquote><t>
+   This mechanism is used to construct an arbitrary domain name that is
+   used for a DNS A record query.
+</t></blockquote><t> to </t><blockquote><t>
+   This mechanism is used to construct an arbitrary domain name that is
+   used for a dual DNS A-RR and AAAA-RR query.
+</t></blockquote><t>and from </t><blockquote><t>
+   The &lt;domain-spec&gt; is expanded as per Section 7.  The resulting domain
+   name is used for a DNS A RR lookup (even when the connection type is
+   IPv6).  If any A record is returned, this mechanism matches.
+</t></blockquote><t> to </t><blockquote><t>
+   The &lt;domain-spec&gt; is expanded as per Section 7.  The resulting domain
+   name is used for a DNS A-RR and AAAA-RR lookup, depending on when the host is single-stack IPv6
+   or IPv4. For dual-stack, an SPF resolver MUST query both.
+   If any A or AAAA record is returned, this mechanism matches.
+</t></blockquote>
+</section>
+
+<section anchor="security-considerations"><name>Security Considerations</name>
+<t>Extending the specified SPF record with "implied" entries for NAT64 and IPv4-mapped IPv6 may
+lead to unintended source IPs being accepted. But this isn't an issue as the DNS64 server (in use) is
+controlled by the recipient.</t>
+<t>If an SPF implementation opts to use a DoH or DoT, it still needs to query the
+"ipv4only.arpa" zone via the system configured DNS resolver to get the correct NAT64 prefixes.</t>
+</section>
+
+<section anchor="implementation-recommendation"><name>Implementation Recommendation</name>
+<t>IPv6 is already highly adopted, and IPv4 will fade out soon. An SPF library therefore
+SHOULD assume that everything is IPv6 and internally convert everything into IPv6 Addresses
+instead of "retrofitting" onto IPv4, which would lead to two nearly identical code paths.
+For simplicity reasons converting all IPv4s into IPv4-mapped IPv6 before doing any cheks
+will prevent duplicated code for IPv4 and IPv6 handling as well as provide a unified
+reliable code path. This is especially recommended as linux systems will already provide
+IPv4-mapped IPv6 Addresses towards the software when a dualstack socket is created (that
+is if either IPV6_V6ONLY=0 is specified or net.ipv6.bindv6only=0 is set globally).</t>
+</section>
+
+</middle>
+
+<back>
+<references><name>Informative References</name>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4291.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6052.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6146.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6147.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7208.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8880.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8781.xml"/>
+</references>
+
+</back>
+
+</rfc>
