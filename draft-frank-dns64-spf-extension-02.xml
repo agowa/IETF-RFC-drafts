@@ -5,7 +5,7 @@
 <title abbrev="dns64-spf-extension">An Extension to DNS64 for Sender Policy Framework SPF Awareness</title>
 <seriesInfo value="draft-frank-dns64-spf-extension-02" stream="IETF" status="informational" name="Internet-Draft"></seriesInfo>
 <author initials="K." surname="Frank" fullname="Klaus Frank"><organization></organization><address><postal><street></street>
-</postal><email>klaus.frank@posteo.de</email>
+</postal><email>draft-frank-dns64-spf-extension@frank.fyi</email>
 </address></author>
 <date/>
 <area>Application</area>
