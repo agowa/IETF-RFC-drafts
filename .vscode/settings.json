@@ -1,0 +1,5 @@
+{
+  "xmlTools.enforcePrettySelfClosingTagOnFormat": true,
+  "xmlTools.splitXmlnsOnFormat": true,
+  "xmlTools.splitAttributesOnFormat": true
+}
