@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rfc version="3" ipr="trust200902" updates="RFC6147,RFC7208" submissionType="IETF" category="std" docName="draft-frank-dns64-spf-extension-02" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude">
+<rfc version="3" ipr="trust200902" updates="RFC6147,RFC7208" submissionType="IETF" consensus="true" category="std" docName="draft-frank-dns64-spf-extension-02" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <front>
 <title abbrev="dns64-spf-extension">An Extension to DNS64 for Sender Policy Framework SPF Awareness</title>
@@ -29,7 +29,7 @@ to simplify the problems of dualstack operations utilize it. There it's used to 
 IPv4 internet and be reachable by the IPv4 network without having an IPv4 stack on the own servers. Such a function is
 solicited when an IPv6-only host communicates with an IPv4-only server. In such context, IPv4-only servers are represented
 in the IPv6 domain by synthesizing IPv6 addresses based on IPv4 addresses. The address translation algorithm defined
-in <xref target="RFC60525"></xref> uses a dedicated IPv6 prefix that usually is the Well-Known Prefix (i.e. 64:ff9b::/96)
+in <xref target="RFC6052"></xref> uses a dedicated IPv6 prefix that usually is the Well-Known Prefix (i.e. 64:ff9b::/96)
 or a Network Specific Prefix (NSP). For better application compatibility NSP is usually only used in transit only.</t>
 <t>DNS64 <xref target="RFC6147"></xref> specifies a companion DNS mechanism to represent IPv4-only servers in the
 IPv6 domain.</t>
@@ -117,19 +117,19 @@ when, and only when, they appear in all capitals, as shown here.</t>
    This example uses the Well-Known Prefix defined in <xref target="RFC6052"></xref>.</t>
 <t>
    NOTE: Everything else is done by the SPF validator (as already defined in the standard
-   <xref target="RFC7208"></xref>).
-   <list>
-   <t>When it checks a.example.com, it queries the A-RR and AAAA-RR and, thereby, gets a response containing
-   the synthesized AAAA RR and validation will pass accordingly.</t>
-   <t>When it checks the NAT64 generated IPv6 it sees as source address against the SPF,
-   it'll find the "ip6" mechanism DNS64 inserted and also pass.</t>
-   <t>For any macro-string, the SPF validator will generate new DNS lookups, which will be rewritten according to
-   this document and therefore pass as the validation checks.</t>
-   </list>
-</t></blockquote>
+   <xref target="RFC7208"></xref>).</t>
+   <ul>
+   <li>When it checks a.example.com, it queries the A-RR and AAAA-RR and, thereby, gets a response containing
+   the synthesized AAAA RR and validation will pass accordingly.</li>
+   <li>When it checks the NAT64 generated IPv6 it sees as source address against the SPF,
+   it'll find the "ip6" mechanism DNS64 inserted and also pass.</li>
+   <li>For any macro-string, the SPF validator will generate new DNS lookups, which will be rewritten according to
+   this document and therefore pass as the validation checks.</li>
+   </ul>
+</blockquote>
 </section>
 
-<section anchor="spf-mechanism-definitions"><name>Updates to RFC7208: SPF "esixts" Mechanism</name>
+<section anchor="spf-mechanism-definitions"><name>Updates to RFC7208: SPF "exists" Mechanism</name>
 <t>Section 5.7 of <xref target="RFC7208"></xref> currently explicitly
 ignores the presence of IPv6 and to future proof it for IPv6-only it gets updated as follows:</t>
 <t>OLD:</t><blockquote><t>
@@ -154,13 +154,16 @@ ignores the presence of IPv6 and to future proof it for IPv6-only it gets update
 
 </middle>
 
-<back><name>References</name>
+<back>
+<references><name>References</name>
 <references><name>Normative References</name>
 <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6147.xml"/>
 <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7208.xml"/>
 </references>
 <references><name>Informative References</name>
 <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6146.xml"/>
+<xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6052.xml"/>
+</references>
 </references>
 
 </back>
