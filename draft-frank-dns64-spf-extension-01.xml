@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rfc version="3" ipr="trust200902" submissionType="IETF" category="std" docName="draft-frank-dns64-spf-extension-00" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude">
+<rfc version="3" ipr="trust200902" submissionType="IETF" category="std" docName="draft-frank-dns64-spf-extension-01" xml:lang="en" xmlns:xi="http://www.w3.org/2001/XInclude">
 
 <front>
 <title abbrev="dns64-spf-extension">Extension of DNS64 (RFC6147) for SPF (RFC7208)</title>
-<seriesInfo value="draft-frank-dns64-spf-extension-00" stream="IETF" status="informational" name="Internet-Draft"></seriesInfo>
+<seriesInfo value="draft-frank-dns64-spf-extension-01" stream="IETF" status="informational" name="Internet-Draft"></seriesInfo>
 <author initials="K." surname="Frank" fullname="Klaus Frank"><organization></organization><address><postal><street></street>
 </postal><email>klaus.frank@posteo.de</email>
 </address></author>
@@ -33,9 +33,10 @@ allow-/denylist...
 <section anchor="spf-rr-rewrite"><name>Rewriting SPF records</name>
 <t>The section 5.1 of <xref target="RFC6147"></xref> gets ammended with another subsection (5.1.9):
 </t>
-<blockquote><t>
-5.1.9. Dealing with SPF records
-   If the DNS64 server receives a SPF-record (within either the TXT-RR or the SPF-RR <xref target="RFC4408"></xref>)
+<blockquote>
+<t>5.1.9. Dealing with SPF records
+</t>
+<t>   If the DNS64 server receives a SPF-record (within either the TXT-RR or the SPF-RR <xref target="RFC4408"></xref>)
    containing the "ip4" mechanism, it MUST rewrites the ipv4 address according to the same rules as an A-RR and
    synthesize a new SPF record within the response that contains it as an additional "ip6" entry.
    If an ip4-cidr-length is present, it gets converted as well (adding 96 will generate the new ip6-cidr-length).
