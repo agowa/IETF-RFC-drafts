@@ -5,7 +5,7 @@
   submissionType="IETF"
   consensus="true"
   category="std"
-  docName="draft-frank-dns64-spf-extension-02"
+  docName="draft-frank-dns64-spf-extension-03"
   xml:lang="en"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
@@ -195,6 +195,12 @@ ignores the presence of IPv6 and to future proof it for IPv6-only it gets update
       </blockquote>
     </section>
 
+    <section anchor="contributors-and-acknowledgements">
+      <name>Contributors and Acknowledgements</name>
+      <t>A special thanks goes to everyone participating in the discussion on the mailing
+      lists as well as Mohamed Boucadair for proofreading, suggested changes, and helping
+      with the submission process itself.</t>
+    </section>
   </middle>
 
   <back>
