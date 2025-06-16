@@ -41,9 +41,10 @@
       When two id-kp-clientAuth certificates are used this means E2E authentication between two users. Where as
       two id-kp-serverAuth certificates being used means server-to-server authentication. And one user and one server
       certificate within one TLS connection means client-to-server (or technically also server-to-client).
-      The term "TLS-Client" SHOULD from now on mean the party sending the initial package while establishing a TLS connection.
-      This helps to avoid design issues moving vorward where some people think TLS-Client auth is only for "client-to-server"
-      while neglect the server-to-server aspect.
+      The term "TLS-Client" SHOULD no longer be used and mean the party sending the initial package while establishing
+      a TLS connection. This helps to avoid design issues moving forward as currently some people thought TLS-Client auth
+      was only ever used in "client-to-server" and never within "server-to-server" context. Which sparked the demand for
+      this document to begin with to keep server-to-server auth with public trusted certificates working.
       </t>
     </abstract>
 
