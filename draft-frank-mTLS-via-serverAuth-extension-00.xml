@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rfc version="3"
+  ipr="trust200902"
+  updates="RFC8446,RFC8705,RFC5280,RFC5246,RFC7590"
+  submissionType="IETF"
+  consensus="true"
+  category="std"
+  docName="draft-frank-mTLS-via-serverAuth-extension-00"
+  xml:lang="en"
+  xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <front>
+    <title abbrev="mTLS-via-serverAuth-extension">Allow using serverAuth certificates for mutual TLS (mTLS) authentication in server-to-server usages.</title>
+    <seriesInfo value="draft-frank-mTLS-via-serverAuth-extension-00"
+      stream="IETF"
+      status="informational"
+      name="Internet-Draft"></seriesInfo>
+    <author initials="K."
+      surname="Frank"
+      fullname="Klaus Frank">
+      <organization></organization>
+      <address>
+        <postal>
+          <street></street>
+        </postal>
+        <email>draft-frank-mTLS-via-serverAuth-extension@frank.fyi</email>
+      </address>
+    </author>
+    <date />
+    <area>Application</area>
+    <workgroup>TLS</workgroup>
+    <keyword>mTLS</keyword>
+
+    <abstract>
+      <t>This document aims to standardize the validation of mutual TLS authentication between servers (server-to-server).
+      It outlines recommended validation flows as well as provides practical design recommendations.
+      </t>
+    </abstract>
+
+  </front>
+
+  <middle>
+
+    <section anchor="introduction">
+      <name>Introduction</name>
+      <t>
+      Recently public CAs have stopped issuing certificates with both clientAuth and serverAuth from the common web
+      root of trust because of a change in the Chrome Root Program Policy. Some CAs still issue client auth certificates
+      but only towards invididuals and none towards domain names (dNSNames). But even their usage is questionable as
+      they're no longer issued by the an signing CA within the same trust hirarchy. Furthermore the policy now also
+      states that going forward all certificates containing both clientAuth and serverAuth will be considered invalid.
+      Because of this there are now new challanges for server-to-server usages. This document aims to address this by
+      relaxing the validation requirements for TLS Clientauthentication within the server-to-server usecase. In addition
+      this document also provides some standardized validation flows which formerly weren't formally standardized.
+      </t>
+      <section anchor="terminology">
+        <name>Terminology</name>
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",  "MAY", and "OPTIONAL"
+in this document are to be interpreted as described in BCP 14 [RFC2119],[RFC8174]
+when, and only when, they appear in all capitals, as shown here.</t>
+        <t>The reader should be familiar with the terms defined in <xref target="RFC5280"></xref> and
+          <xref target="RFC8446"></xref>
+        </t>
+      </section>
+    </section>
+
+    <section anchor="">
+      <name>Updates to RFC5280: id-kp-serverAuth for mutual Authentication</name>
+      <t>Section 4.2.1.12 of <xref target="RFC5280"></xref> is extended by:</t>
+      <t>NEW:</t>
+      <blockquote>
+        <t>
+        "TLS WWW client authentication" SHOULD mean authentication of a natural or legal entity.
+        "TLS WWW server authetnication" SHOULD mean authentication of a device e.g. client-to-server or server-to-server
+        A certificate with either (or both) of these options MAY be used for either side of a TLS-connection.
+        A server expecting only end user authentication SHOULD decline id-kp-serverAuth certificates and one
+        only expecting server-to-server connections SHOULD decline id-kp-clientAuth certificates.
+        The server SHOULD validate the certificate it received from the TLS connection establishing party
+        (TLS-Client) according to <xref target="draft-frank-mTLS-via-serverAuth-extension"><xref>.
+        </t>
+      </blockquote>
+    </section>
+
+    <section anchor="validation">
+      <name>Updates to all RFCs using mutual authentication</name>
+      <t>The following mutual authentication scenarious should be differentiated
+      </t>
+      <section anchor="validation-basic">
+        <figure title="Figure 1: Server-to-server">
+            <artwork align="center">
+    +-----------------+        +----------------+
+    |     Server-A    | <====> |    Server-B    |
+    +-----------------+        +----------------+
+            </artwork>
+        </figure>
+        <t>Figure 1 shows a minimal deployment with two servers.
+        </t>
+        <t>
+        In the most basic case the authentication is performed between two servers directly.
+        This case can be further split into:
+        </t>
+        <ul>
+            <li>application to application: In this case there is an application on both servers that performs the
+            authentication and use the tls authentication also for authentication within the application itself.
+            E.g. to grant different access rights.</li>
+            <li>server to server: In this scenario the authentication is performed outside of the application,
+            e.g. using a separate application to wrap the connection or by the webserver without forwarding it to
+            the application itself. This can be seen as adding an additional layer of authentication in cases where
+            the application itself may not support authentication or where a 2nd dedicated factor is desired. It is
+            basically similar to a peer-to-peer VPN like IPSec in transport mode.</li>
+        </ul>
+        <t>Where some of these MAY be able to use an internal, private, or enterprise CA this does not apply to all
+        usages. E.g. XMPP servers commonly use mutual TLS but the other parties are not necessarily known beforehand.
+        The same applies to some extend also to SMTP relays between different organizations. The desired level of
+        assurance in these cases is not authentication as in associating a session to a specific user but more generic
+        the same as when a server identifies itself to a end user, to ensure both parties are who they claim to be.
+        e.g. server-a.example.com communicating with server-b.example.com
+        </t>
+      </section>
+      <section anchor="validation-advanced">
+        <t>A slightly more advanced usage is when a 3rd server, like a load-balancer is present within the connection.
+        </t>
+        <figure title="Figure 2: Sample Deployment with Load Balancer">
+            <artwork align="center">
++-----------------+        +----------------+        +----------------+
+|     Server-A    | <====> |    Server-B    | <====> |    Server-C    |
++-----------------+        +----------------+        +----------------+
+            </artwork>
+        </figure>
+      <t>Figure 2: An extension of Figure 1 with one more server behind Server-B which serves as load balancer.
+      </t>
+      <t>In this setup it can be differentiated between these scenarious:
+      </t>
+      <ul>
+        <li>with application layer authentication: In this case the load balancer uses a mechanism to forward the
+        authentication towards the application. E.g. by passing the connection through as is or by using another
+        standard that is outside of the scope of this document. The goal in this case is almost always to
+        authenticate a user.</li>
+        <li>without application layer authentication: This usage is basically identical to the basic scenario
+        above and the goal is most of the time to add an additional layer of authetnication. The load-balancer
+        will terminate the TLS connection and establish a separate connection with the backend server.
+        The backend server does not get informed about the presence or state of the mutually authenticated TLS
+        connection at all. This is similar to using IPSec or an HTTPS-proxy.</li>
+        <li>with mTLS only between load-balancer and backend server: mTLS is used between the load-balancer and
+        the backend. This is commonly used within e.g. a service mesh or where the backend may be spread accross
+        multiple different cloud providers. It also allows a backend server to reject all connections that fail
+        mTLS authentication (e.g. are from either another system within the service mesh, nor from the
+        load-balancer). It also serves as a simpler and more scalable alternative to IP allow lists.</li>
+        <li>with mTLS only between requestor and load-balancer: In this case the backend server is either
+        only unidirectionally authenticated or may not be authenticated at all. Also the laod-balancer MAY
+        forward information of the client certificate to the application or not. Depending on this it is either
+        the same as the first or the second case above. Such a configuration is commonly used to secure an
+        otherwise insecure application. In such deployments the backend server is commonly isolated and only
+        exposed through a dedicated transfer network to the loadbalancer without any other systems within that
+        network. Even if the application requires an outbound internet connection this almost always allows for
+        selectively binding the insecure listening socket of the application towards only the transfer network and
+        not towards the uplink network used for outbound connections. Depending on the application the load-balancer
+        (or reverse proxy) MAY be installed on the same system as the insecure application. In these cases the
+        transfer network MAY be either a dedicated network namespace, a unix domain socket, or a dummy network
+        interface. Usage of the loopback interface with "127.0.0.1" and "::1" SHOULD be avoided as many legacy
+        applications have special handling for them and therefore MAY expose more control than expected.</li>
+      </ul>
+      </section>
+      <section anchor="validation-serverAuth-by-server">
+      The validation of the TLS certificate received by the connection initiating party is already sufficiently
+      specified within the original RFCs. However the validation of the certificate received from the client by
+      the server is not. Because this document focuses on the server-to-server usage it is possible to specify
+      the validation criteria in more detail:
+      </section>
+      <ol>
+        <li>If the received certificate specifies the Extended Key Usage of "clientAuth" any
+        generic application like e.g. a web server SHOULD assume this meaning end user authentication. Without
+        additional configuration it SHOULD reject any otherwise valid certificate that is not issued towards
+        either an individual or organization. Aka. certificates with an FQDN or IP-Address within the CN or SAN
+        section. A more specialized application can decide for itself if it wants to accept either a certificate
+        for a system or an enduser.</li>
+        <li>If the received certificate is otherwise valid, has Extended Key Usage "serverAuth" and is issued
+        towards an entity of type dNSName the receiving server SHOULD perform a forward-confirmed reverse DNS
+        lookup. This discovered FQDN is then used for validating the certificate as if it was a certificate
+        received for an outbound conenction towards that FQDN.</li>
+        <li>If the received certificate is otherwise valid, has Extended Key Usage "serverAuth" and is issued
+        towards an entity of type ipAddress the receiving server MUST use the source IP-Address of the connection
+        to validate the certificate against.</li>
+        <li>A generic application MUST NOT pass authentications using certificates of kind "serverAuth" towards
+        applications. It SHOULD pass authentication for "clientAuth". It MAY allow for a configurable overwrite
+        to be configured to also pass certificates of "serverAuth" towards to the application.</li>
+        <li>Applications SHOULD provide a configuration option to reject all certificates with both clientAuth
+        and serverAuth.</li>
+        <li>A certificate that is issued towards either dNSName or iPAddress as well as any other type is invalid
+        </li>
+        <li>A server performing a forward-confirmed reverse DNS lookup SHOULD also query the relevant CAA, TLSA,
+        SVCB, SRV, CERT, and DNSSEC records. Supporting applications SHOULD check their application specific
+        records as well (e.g. HTTPS, SSHFP, ...).</li>
+        <li>In case the certificate is issued towards an entity of type ipAddress the server SHOULD query the
+        reverse lookup zone for these DNS records. It MAY also try to perform a forward-confirmed reverse DNS
+        lookup but it failing because of missing PTR/A/AAAA-RRs SHOULD not fail the entire validation.</li>
+        <li>In case DNSSEC validation fails the forward-confirmed reverse DNS lookup fails. Therefore the
+        certificate validation fails as well.</li>
+        <li>If for a specific DNS zone DNSSEC is not configured at all the validation SHOULD NOT fail. An
+        application however MAY specify a more strict requirement depending on its security requirements. Howver
+        it then MUST allow for a configurable overwrite.</li>
+        <li>If a TLSA record is received it's certificate usage value MUST be honored. Except the zone is not
+        DNSSEC signed then only certificate usage 0 and 1 are honored. When the zone is signature certificate
+        usage 2 and 3 also MUST be honored. See <xref target="RFC7671"></xref>, <xref target="RFC7672"></xref>,
+        and <xref target="RFC7673"></xref>.</li>
+        <li>For Zeroconf (<xref target="RFC6762"></xref> and <xref target="RFC6763"></xref>) domains the
+        DNSSEC requirements MUST be ignored.</li>
+        <li>A configuration option listing domains for which DNSSEC is not evaluated MUST be provided.
+        The default list SHOULD include ".local", ".localhost", and ".onion". It MAY be disabled by default though.
+        </li>
+        <li>Applications SHOULD provide a configuration option to specify a separate dns resolver to be used for
+        only these specific domains and MAY provide a configuration option to use for all others instead of using
+        the DNS resolver of the system.</li>
+        <li>A SRV/SVCB/... record containing the source port SHOULD be considered while evaluating. It's absence
+        is not an error (except when it should be present as determined by DNSSEC). It being present but it not
+        validating doesn't cause the validation to fail either. However it CAN be used while retrieving the
+        TLSA-RR or for the forward-confirmed reverse DNS lookup. See <xref target="RFC9460"></xref> and
+        the IANA "Underscored and Globally Scoped DNS Node Names" registry from <xref target="RFC8552"></xref>.
+        e.g. "_8443._tcp.1.2.0.192.in-addr.arpa" or "_8443._tcp.example.com" when "1.2.0.192.in-addr.arpa" is
+        pointing towards "example.com".An application specific to some protocol like e.g. XMPP SHOULD check
+        the associated SRV-RR but MAY also check other less specific ones if applicable. It should be noted that
+        <xref target="RFC6762"></xref> for SRV records specifies "Port numbers SHOULD NOT be used in place of
+        the symbolic service or protocol names". Therefore even though unlikely it MAY still be used in some
+        rare cases. Some MAY use a SRV record with port numbers for reverse lookups instead of a NAPTR record.
+        </li>
+        <li>Except for the above described extensible reverse lookup and validation of the received mapping
+        the certificate validation is exactly the same as for any certificate the system would have received as
+        a TLS-client for an outbound connection by a server. The retrieved domain name is used as a replacement
+        for the desired remote target server name.</li>
+        <li>Applications MAY ONLY validate the source IP and hostname. However applications SHOULD at least
+        offer the additional validation mechanisms outlined above to validate the source port and service as
+        well. This provides additional security against protocol confusion and binds certificates (e.g. when the
+        TLSA record is specified for the SVCB/SRV record) not just to the host but to the source port and
+        service as well.</li>
+      </ol>
+    </section>
+
+    <section anchor="contributors-and-acknowledgements">
+      <name>Contributors and Acknowledgements</name>
+      <t>A special thanks goes to everyone participating in the discussion on the mailing
+      lists as well as Mohamed Boucadair for proofreading, suggested changes, and helping
+      with the submission process itself.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references>
+      <name>References</name>
+      <references>
+        <name>Normative References</name>
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5280.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6762.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6763.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7590.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7671.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7672.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7673.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8446.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8705.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9460.xml" />
+      </references>
+    </references>
+
+  </back>
+
+</rfc>
