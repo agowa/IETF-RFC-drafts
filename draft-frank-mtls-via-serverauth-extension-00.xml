@@ -5,13 +5,13 @@
   submissionType="IETF"
   consensus="true"
   category="std"
-  docName="draft-frank-mTLS-via-serverAuth-extension-00"
+  docName="draft-frank-mtls-via-serverauth-extension-00"
   xml:lang="en"
   xmlns:xi="http://www.w3.org/2001/XInclude">
 
   <front>
-    <title abbrev="mTLS-via-serverAuth-extension">Allow using serverAuth certificates for mutual TLS (mTLS) authentication in server-to-server usages.</title>
-    <seriesInfo value="draft-frank-mTLS-via-serverAuth-extension-00"
+    <title abbrev="mtls-via-serverauth-extension">Allow using serverAuth certificates for mutual TLS (mTLS) authentication in server-to-server usages.</title>
+    <seriesInfo value="draft-frank-mtls-via-serverauth-extension-00"
       stream="IETF"
       status="informational"
       name="Internet-Draft"></seriesInfo>
@@ -23,11 +23,11 @@
         <postal>
           <street></street>
         </postal>
-        <email>draft-frank-mTLS-via-serverAuth-extension@frank.fyi</email>
+        <email>draft-frank-mtls-via-serverauth-extension@frank.fyi</email>
       </address>
     </author>
     <date />
-    <area>Application</area>
+    <area>Security</area>
     <workgroup>TLS</workgroup>
     <keyword>mTLS</keyword>
 
@@ -76,7 +76,7 @@ when, and only when, they appear in all capitals, as shown here.</t>
       </section>
     </section>
 
-    <section anchor="">
+    <section anchor="update-to-rfc5280">
       <name>Updates to RFC5280: id-kp-serverAuth for mutual Authentication</name>
       <t>Section 4.2.1.12 of <xref target="RFC5280"></xref> is extended by:</t>
       <t>NEW:</t>
@@ -88,7 +88,7 @@ when, and only when, they appear in all capitals, as shown here.</t>
         A server expecting only end user authentication SHOULD decline id-kp-serverAuth certificates and one
         only expecting server-to-server connections SHOULD decline id-kp-clientAuth certificates.
         The server SHOULD validate the certificate it received from the TLS connection establishing party
-        (TLS-Client) according to <xref target="draft-frank-mTLS-via-serverAuth-extension"></xref>.
+        (TLS-Client) according to draft-frank-mtls-via-serverAuth-extension.
         </t>
       </blockquote>
     </section>
@@ -98,11 +98,14 @@ when, and only when, they appear in all capitals, as shown here.</t>
       <t>The following mutual authentication scenarious should be differentiated
       </t>
       <section anchor="validation-basic">
+        <name>Basic scenario</name>
         <figure title="Figure 1: Server-to-server">
             <artwork align="center">
-    +-----------------+        +----------------+
-    |     Server-A    | <====> |    Server-B    |
-    +-----------------+        +----------------+
+            <![CDATA[
+              +-----------------+        +----------------+
+              |     Server-A    | <====> |    Server-B    |
+              +-----------------+        +----------------+
+            ]]>
             </artwork>
         </figure>
         <t>Figure 1 shows a minimal deployment with two servers.
@@ -130,13 +133,16 @@ when, and only when, they appear in all capitals, as shown here.</t>
         </t>
       </section>
       <section anchor="validation-advanced">
+        <name>Advanced scenario</name>
         <t>A slightly more advanced usage is when a 3rd server, like a load-balancer is present within the connection.
         </t>
         <figure title="Figure 2: Sample Deployment with Load Balancer">
             <artwork align="center">
-+-----------------+        +----------------+        +----------------+
-|     Server-A    | <====> |    Server-B    | <====> |    Server-C    |
-+-----------------+        +----------------+        +----------------+
+            <![CDATA[
+              +-----------------+        +----------------+        +----------------+
+              |     Server-A    | <====> |    Server-B    | <====> |    Server-C    |
+              +-----------------+        +----------------+        +----------------+
+            ]]>
             </artwork>
         </figure>
       <t>Figure 2: An extension of Figure 1 with one more server behind Server-B which serves as load balancer.
@@ -174,11 +180,14 @@ when, and only when, they appear in all capitals, as shown here.</t>
       </ul>
       </section>
       <section anchor="validation-serverAuth-by-server">
+      <name>Validation of a certificates with only EKU serverAuth received by a server from the connection
+      establishing party.</name>
+      <t>
       The validation of the TLS certificate received by the connection initiating party is already sufficiently
       specified within the original RFCs. However the validation of the certificate received from the client by
       the server is not. Because this document focuses on the server-to-server usage it is possible to specify
       the validation criteria in more detail:
-      </section>
+      </t>
       <ol>
         <li>If the received certificate specifies the Extended Key Usage of "clientAuth" any
         generic application like e.g. a web server SHOULD assume this meaning end user authentication. Without
@@ -245,6 +254,7 @@ when, and only when, they appear in all capitals, as shown here.</t>
         TLSA record is specified for the SVCB/SRV record) not just to the host but to the source port and
         service as well.</li>
       </ol>
+      </section>
     </section>
 
     <section anchor="contributors-and-acknowledgements">
@@ -269,6 +279,7 @@ when, and only when, they appear in all capitals, as shown here.</t>
         <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7672.xml" />
         <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7673.xml" />
         <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8446.xml" />
+        <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8552.xml" />
         <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8705.xml" />
         <xi:include href="https://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9460.xml" />
       </references>
