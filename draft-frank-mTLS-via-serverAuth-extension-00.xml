@@ -34,6 +34,16 @@
     <abstract>
       <t>This document aims to standardize the validation of mutual TLS authentication between servers (server-to-server).
       It outlines recommended validation flows as well as provides practical design recommendations.
+      Basically the EKU id-kp-clientAuth and id-kp-serverAuth get more precisely defined to represent their common
+      understanding by issuing CAs and browsers.
+      id-kp-clientAuth aka. "TLS WWW client authentication" SHOULD mean authentication of a natural or legal entity.
+      id-kp-serverAuth aka. "TLS WWW server authetnication" SHOULD mean authentication of a device.
+      When two id-kp-clientAuth certificates are used this means E2E authentication between two users. Where as
+      two id-kp-serverAuth certificates being used means server-to-server authentication. And one user and one server
+      certificate within one TLS connection means client-to-server (or technically also server-to-client).
+      The term "TLS-Client" SHOULD from now on mean the party sending the initial package while establishing a TLS connection.
+      This helps to avoid design issues moving vorward where some people think TLS-Client auth is only for "client-to-server"
+      while neglect the server-to-server aspect.
       </t>
     </abstract>
 
