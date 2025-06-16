@@ -88,7 +88,7 @@ when, and only when, they appear in all capitals, as shown here.</t>
         A server expecting only end user authentication SHOULD decline id-kp-serverAuth certificates and one
         only expecting server-to-server connections SHOULD decline id-kp-clientAuth certificates.
         The server SHOULD validate the certificate it received from the TLS connection establishing party
-        (TLS-Client) according to <xref target="draft-frank-mTLS-via-serverAuth-extension"><xref>.
+        (TLS-Client) according to <xref target="draft-frank-mTLS-via-serverAuth-extension"></xref>.
         </t>
       </blockquote>
     </section>
